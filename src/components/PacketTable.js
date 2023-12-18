@@ -94,7 +94,7 @@ const PacketTable = ({logs}) => {
           </tbody>
           <tfoot>
             <tr>
-              <td colSpan="100%"> {/* Ensure the colSpan covers all columns */}
+              <td colSpan="100%"> {/* Ensure the covers all columns */}
                 Total Rows: {logs ? filteredLogs.length : 0}
               </td>
             </tr>
