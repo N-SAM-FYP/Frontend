@@ -1,0 +1,100 @@
+.log-analysis {
+    font-family: 'Arial', sans-serif;
+    color: #eee3e3;
+    margin: 20px;
+  }
+  
+  .header {
+    display: flex;
+    margin-bottom: 20px;
+  }
+  
+  .dropdown {
+    padding: 5px;
+    margin-left: 50px;
+    margin-right: 50px;
+    justify-content: center;
+
+  }
+  .dropdown:hover
+  {
+    background-color: azure;
+    color: #070707;
+
+  }
+  
+  .charts {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .log-textarea {
+    width: 100%;
+    height: 200px; /* Adjust the height as necessary */
+    margin-bottom: 20px;
+    padding: 10px;
+    font-family: 'Consolas', 'Courier New', Courier, monospace; /* Monospace font for log data */
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  }
+  
+.export-button,
+.analysis-button,
+.goback-button {
+  background-color: #070707; /* Button color */
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px; /* Rounded corners */
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  margin-inline: auto;
+  display: auto;
+  text-transform: uppercase; /* Capital letters */
+  width: fit-content; /* Adjust width to content */
+}
+
+.export-button:hover,
+.analysis-button:hover,
+.goback-button:hover {
+  background-color: #e0eae1;
+  color: #070707;
+}
+.content-area {
+  border: 1px solid #000;
+  height: 300px; /* Adjust based on your content */
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: flex;
+  flex: 1; /* Distributes space equally between rows */
+}
+
+.column {
+  flex: 1; /* Distributes space equally between columns */
+  border: 1px solid #ddd; /* Optional, for visual separation */
+  padding: 10px;
+  box-sizing: auto; /* Includes padding and border in the element's total width and height */
+}
+
+
+  .image-container img {
+    max-width: 15000px; /* ensures the image is responsive and fits the container */
+    height: auto; /* maintains aspect ratio */
+    display: flex; /* prevents inline default spacing */
+    margin: 0 auto; /* centers the image if it's not full width */
+  }
+  
+  /* Add more styles as needed */
+  

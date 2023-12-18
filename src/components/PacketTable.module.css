@@ -1,0 +1,29 @@
+
+
+
+.tableContainer {
+    padding: 10px;
+    border-collapse: collapse;
+    border: 1px solid #ddd;
+    max-width: 100%;
+  }
+  
+  .table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  
+  th, td {
+    padding: 8px;
+    border: 1px solid #ddd;
+  }
+  
+  th {
+    background-color: #f2f2f2;
+    text-align: center; 
+  }
+  
+  tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
