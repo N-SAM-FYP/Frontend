@@ -16,10 +16,7 @@ import AlertsManagement from "../pages/Alerts";
 import LogAnalysis from "../pages/LogAnalysis";
 import Logs from "../pages/Logs";
 
-const initialRules = [
-  { name: "Rule 1", status: "Inactive" },
-  { name: "Rule 2", status: "Inactive" },
-];
+const initialRules = [{ name: "Block IP", status: "Inactive" }];
 
 const App = () => {
   const [logs, setLogs] = useState(null);

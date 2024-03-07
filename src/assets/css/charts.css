@@ -1,0 +1,37 @@
+.chart-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.chart {
+  width: 30%;
+  height: auto;
+}
+
+.chart-parameter-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  width: 50%;
+  margin: auto;
+}
+
+.chart-parameter-container .set-filter-dropdown {
+  color: black;
+  border: 2px solid #ccc;
+  background-color: white;
+  border-radius: 10px;
+  padding: 2px;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin-right: 10px;
+}
+
+.chart-parameter-container .input-text {
+  border: 2px solid #ccc;
+  background-color: white;
+  border-radius: 10px;
+  padding: 2px;
+  padding-left: 10px;
+}

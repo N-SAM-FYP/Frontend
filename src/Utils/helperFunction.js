@@ -3,7 +3,7 @@ import moment from "moment";
 export const refactorLogs = (logs) => {
   return logs.map((log) => {
     return {
-      timestamp: moment(log.timestamp).format("lll"),
+      timestamp: log.timestamp,
       type: log.tcp ? "TCP" : "UDP",
       destination: log.ip ? log.ip.dst : "N/A",
       protocol: log.ip ? log.ip.protocol : "N/A",

@@ -4,9 +4,7 @@ import "./LogAnalysis.css";
 import "../assets/css/filter.css";
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
-import PacketTable from "../components/PacketTable";
 //import img from '../pics/jugaar.png'
-import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
 import { DataTable } from "primereact/datatable";
@@ -14,11 +12,25 @@ import { Column } from "primereact/column";
 import { Button } from "primereact/button";
 import { refactorLogs } from "../Utils/helperFunction";
 import crossIcon from "../assets/svg/cross.svg";
-import moment from "moment";
+import Spinner from "../components/smallComponents/Spinner";
+import plusIcon from "../assets/svg/plus.svg";
+import ChartsSection from "../components/ChartsSection";
 
 function LogAnalysis() {
   const [logs, setLogs] = useState(null);
   const [filteredLogs, setFilteredLogs] = useState(null);
+  const [isLoading, setIsloading] = useState(false);
+  const [filters, setFilters] = useState([]);
+
+  const [selectedTimeStamps, setSelectedTimeStamps] = useState({
+    start: null,
+    end: null,
+  });
+
+  const [sourceIps, setSourceIps] = useState([]);
+  const [destinationIps, setDestinationIps] = useState([]);
+  const [singleIp, setSingleIp] = useState("");
+  const [flags, setFlags] = useState("");
 
   useEffect(() => {
     const fetchData = () => {
@@ -26,6 +38,7 @@ function LogAnalysis() {
         .then((response) => response.json())
         .then((data) => {
           console.log(data);
+          setIsloading(false);
           setLogs(refactorLogs(data));
           setFilteredLogs(refactorLogs(data));
         })
@@ -41,15 +54,6 @@ function LogAnalysis() {
   const handle_export = () => {
     navigate("/report");
   };
-
-  const [filters, setFilters] = useState([]);
-  console.log("filters", filters);
-
-  const [selectedFilter, setSelectedFilter] = useState();
-  const [selectedTimeStamps, setSelectedTimeStamps] = useState({
-    start: null,
-    end: null,
-  });
 
   const handleFilterSet = (field) => {
     console.log("field", field.value);
@@ -70,44 +74,51 @@ function LogAnalysis() {
 
   const handleFilterRemove = (field) => {
     setFilters((prevState) => {
-      const newFilters = { ...prevState };
-      delete newFilters[field];
+      const newFilters = prevState.filter((filter) => filter !== field);
       return newFilters;
     });
   };
 
   const handleFilterReset = () => {
+    setSourceIps([]);
+    setSingleIp();
+    setSelectedTimeStamps({ start: null, end: null });
     setFilters([]);
     setFilteredLogs(logs);
   };
 
   const handleFilterSubmit = () => {
+    let resultLogs = logs;
+    console.log("resultLogs", resultLogs);
     if (filters) {
-      let resultLogs = logs;
+      console.log("selectedTimeStamps", selectedTimeStamps);
       if (filters.includes("Timestamp")) {
-        resultLogs = logs.filter(
+        resultLogs = resultLogs.filter(
           (log) =>
-            moment(log.timestamp).format("lll") >= selectedTimeStamps.start &&
-            moment(log.timestamp).format("lll") <= selectedTimeStamps.end
+            log.timestamp >= selectedTimeStamps.start &&
+            log.timestamp <= selectedTimeStamps.end
         );
       }
-      setFilteredLogs(refactorLogs(resultLogs));
+      if (filters.includes("Source")) {
+        resultLogs = resultLogs.filter((log) => sourceIps.includes(log.source));
+      }
+      if (filters.includes("Destination")) {
+        resultLogs = resultLogs.filter((log) =>
+          destinationIps.includes(log.destination)
+        );
+      }
+
+      if (filters.includes("Flags")) {
+        const flagsArray = flags.split(",");
+        resultLogs = resultLogs.filter((log) => {
+          return flagsArray.every((flag) => log.flags.includes(flag));
+        });
+      }
     }
+    console.log("resultLogs", resultLogs);
+    setFilteredLogs(resultLogs);
   };
 
-  // const typeRowFilterTemplate = (options) => {
-  //   return (
-  //     <Dropdown
-  //       value={options.value}
-  //       options={["TCP", "UDP"]}
-  //       onChange={(e) => options.filterApplyCallback(e.value)}
-  //       placeholder="Select One"
-  //       className="p-column-filter"
-  //       showClear
-  //       style={{ minWidth: "12rem" }}
-  //     />
-  //   );
-  // };
   return (
     <>
       <div>
@@ -118,6 +129,8 @@ function LogAnalysis() {
             <h2>Log Analysis</h2>
           </div>
         </div>
+        <ChartsSection logs={filteredLogs} />
+
         <div className="filter-container">
           <Dropdown
             className="set-filter-dropdown"
@@ -135,7 +148,6 @@ function LogAnalysis() {
                       <div>{filter}</div>
                       <InputText
                         className="input-text"
-                        value={selectedTimeStamps.start}
                         placeholder="Start"
                         onChange={(e) =>
                           setSelectedTimeStamps({
@@ -146,7 +158,6 @@ function LogAnalysis() {
                       />
                       <InputText
                         className="input-text"
-                        value={selectedTimeStamps.end}
                         placeholder="End"
                         onChange={(e) =>
                           setSelectedTimeStamps({
@@ -158,7 +169,136 @@ function LogAnalysis() {
 
                       <button
                         onClick={() => {
+                          setSelectedTimeStamps({ start: null, end: null });
                           handleFilterRemove(filter);
+                        }}
+                      >
+                        <img
+                          className="h-2 w-2"
+                          src={crossIcon}
+                          alt="cross icon"
+                        ></img>
+                      </button>
+                    </div>
+                  )}
+                  {filter === "Source" && (
+                    <div className="single-filter">
+                      <div>{filter}</div>
+                      {sourceIps &&
+                        sourceIps.map((ip, index) => (
+                          <p
+                            className="ip-label"
+                            key={index}
+                            placeholder="IP Address"
+                            onClick={() => {
+                              setSourceIps(
+                                sourceIps.filter(
+                                  (ipAddress) => ipAddress !== ip
+                                )
+                              );
+                            }}
+                          >
+                            {ip}
+                          </p>
+                        ))}
+                      <InputText
+                        className="input-text"
+                        placeholder="IP Address"
+                        onChange={(e) => setSingleIp(e.target.value)}
+                      />
+                      <button
+                        onClick={() => {
+                          singleIp !== "" &&
+                            setSourceIps((prevState) => {
+                              return [...prevState, singleIp];
+                            });
+                        }}
+                      >
+                        <img
+                          className="h-2 w-2"
+                          src={plusIcon}
+                          alt="cross icon"
+                        ></img>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSourceIps([]);
+                          handleFilterRemove(filter);
+                        }}
+                      >
+                        <img
+                          className="h-2 w-2"
+                          src={crossIcon}
+                          alt="cross icon"
+                        ></img>
+                      </button>
+                    </div>
+                  )}
+                  {filter === "Destination" && (
+                    <div className="single-filter">
+                      <div>{filter}</div>
+                      {destinationIps &&
+                        destinationIps.map((ip, index) => (
+                          <p
+                            className="ip-label"
+                            key={index}
+                            placeholder="IP Address"
+                            onClick={() => {
+                              setDestinationIps(
+                                destinationIps.filter(
+                                  (ipAddress) => ipAddress !== ip
+                                )
+                              );
+                              handleFilterSubmit();
+                            }}
+                          >
+                            {ip}
+                          </p>
+                        ))}
+                      <InputText
+                        className="input-text"
+                        placeholder="IP Address"
+                        onChange={(e) => setSingleIp(e.target.value)}
+                      />
+                      <button
+                        onClick={() => {
+                          singleIp !== "" &&
+                            setDestinationIps((prevState) => {
+                              return [...prevState, singleIp];
+                            });
+                        }}
+                      >
+                        <img
+                          className="h-2 w-2"
+                          src={plusIcon}
+                          alt="cross icon"
+                        ></img>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setDestinationIps([]);
+                          handleFilterRemove(filter);
+                        }}
+                      >
+                        <img
+                          className="h-2 w-2"
+                          src={crossIcon}
+                          alt="cross icon"
+                        ></img>
+                      </button>
+                    </div>
+                  )}
+                  {filter === "Flags" && (
+                    <div className="single-filter">
+                      <div>{filter}</div>
+                      <InputText
+                        className="input-text"
+                        placeholder="Flags"
+                        onChange={(e) => setFlags(e.target.value)}
+                      />
+                      <button
+                        onClick={() => {
+                          setFlags("");
                         }}
                       >
                         <img
@@ -172,86 +312,94 @@ function LogAnalysis() {
                 </div>
               ))}
           </div>
-          <Button
-            className="filter-submit-button"
-            label="Submit"
-            onClick={handleFilterSubmit}
-          />
-          <Button
-            className="filter-remove-button"
-            label="Reset Filter"
-            onClick={handleFilterReset}
-          />
+          {filters.length > 0 && (
+            <>
+              <Button
+                className="filter-submit-button"
+                label="Submit"
+                onClick={handleFilterSubmit}
+              />
+              <Button
+                className="filter-remove-button"
+                label="Reset"
+                onClick={handleFilterReset}
+              />
+            </>
+          )}
         </div>
-        <DataTable
-          value={filteredLogs}
-          paginator
-          rows={10}
-          showGridlines
-          tableStyle={{ minWidth: "50rem", backgroundColor: "white" }}
-          // filters={filters}
-          filterDisplay="row"
-          // globalFilterFields={["type", "destination", "payload_size", "source"]}
-          emptyMessage="No logs found."
-        >
-          <Column
-            field="timestamp"
-            header="Time Stamp"
-            showFilterMenu={false}
-            // filterMenuStyle={{ width: "14rem" }}
-            // filter
-            // filterPlaceholder="IP Address"
-            sortable
-            style={{ minWidth: "12rem" }}
-          ></Column>
-          <Column
-            field="type"
-            header="Type"
-            // showFilterMenu={false}
-            // filterMenuStyle={{ width: "14rem" }}
-            // filter
-            // filterElement={typeRowFilterTemplate}
-            sortable
-          ></Column>
-          <Column
-            field="destination"
-            header="Destination"
-            // showFilterMenu={false}
-            // filterMenuStyle={{ width: "14rem" }}
-            // filter
-            // filterPlaceholder="IP Address"
-            sortable
-            style={{ minWidth: "12rem" }}
-          ></Column>
-          <Column field="protocol" header="Protocol" sortable></Column>
-          <Column
-            field="source"
-            header="Source"
-            // howFilterMenu={false}
-            // filterMenuStyle={{ width: "14rem" }}
-            // filter
-            // filterPlaceholder="IP Address"
-            sortable
-            style={{ minWidth: "12rem" }}
-          ></Column>
-          <Column field="ttl" header="Time to live" sortable></Column>
-          <Column field="acknowledge" header="Acknowledge" sortable></Column>
-          <Column
-            field="destination_port"
-            header="Destination Port"
-            sortable
-          ></Column>
-          <Column field="flags" header="Flags" sortable></Column>
-          <Column
-            field="payload_size"
-            header="Payload Size"
-            // filter
-            // filterMenuStyle={{ width: "3rem" }}
-            sortable
-          ></Column>
-          <Column field="sequence" header="Sequence" sortable></Column>
-          <Column field="source_port" header="Source Port" sortable></Column>
-        </DataTable>
+        {isLoading ? (
+          <Spinner />
+        ) : (
+          <DataTable
+            value={filteredLogs}
+            paginator
+            rows={15}
+            showGridlines
+            tableStyle={{ minWidth: "50rem", backgroundColor: "white" }}
+            // filters={filters}
+            filterDisplay="row"
+            // globalFilterFields={["type", "destination", "payload_size", "source"]}
+            emptyMessage="No logs found."
+          >
+            <Column
+              field="timestamp"
+              header="Time Stamp"
+              showFilterMenu={false}
+              // filterMenuStyle={{ width: "14rem" }}
+              // filter
+              // filterPlaceholder="IP Address"
+              sortable
+              style={{ minWidth: "12rem" }}
+            ></Column>
+            <Column
+              field="type"
+              header="Type"
+              // showFilterMenu={false}
+              // filterMenuStyle={{ width: "14rem" }}
+              // filter
+              // filterElement={typeRowFilterTemplate}
+              sortable
+            ></Column>
+            <Column
+              field="destination"
+              header="Destination"
+              // showFilterMenu={false}
+              // filterMenuStyle={{ width: "14rem" }}
+              // filter
+              // filterPlaceholder="IP Address"
+              sortable
+              style={{ minWidth: "12rem" }}
+            ></Column>
+            <Column field="protocol" header="Protocol" sortable></Column>
+            <Column
+              field="source"
+              header="Source"
+              // howFilterMenu={false}
+              // filterMenuStyle={{ width: "14rem" }}
+              // filter
+              // filterPlaceholder="IP Address"
+              sortable
+              style={{ minWidth: "12rem" }}
+            ></Column>
+            <Column field="ttl" header="Time to live" sortable></Column>
+            <Column field="acknowledge" header="Acknowledge" sortable></Column>
+            <Column
+              field="destination_port"
+              header="Destination Port"
+              sortable
+            ></Column>
+            <Column field="flags" header="Flags" sortable></Column>
+            <Column
+              field="payload_size"
+              header="Payload Size"
+              // filter
+              // filterMenuStyle={{ width: "3rem" }}
+              sortable
+            ></Column>
+            <Column field="sequence" header="Sequence" sortable></Column>
+            <Column field="source_port" header="Source Port" sortable></Column>
+          </DataTable>
+        )}
       </div>
       <button className="export-button" onClick={handle_export}>
         Export
