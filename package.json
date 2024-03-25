@@ -19,7 +19,8 @@
     "react-dom": "^18.2.0",
     "react-router": "^6.20.1",
     "react-router-dom": "^6.20.1",
-    "react-scripts": "^5.0.1"
+    "react-scripts": "^5.0.1",
+    "react-select": "^5.8.0"
   },
   "scripts": {
     "start": "cross-env NODE_OPTIONS=--openssl-legacy-provider react-scripts start",
