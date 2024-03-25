@@ -16,16 +16,12 @@ import AlertsManagement from "../pages/Alerts";
 import LogAnalysis from "../pages/LogAnalysis";
 import Logs from "../pages/Logs";
 
-const initialRules = [{ name: "Block IP", status: "Inactive" }];
-
 const App = () => {
   const [logs, setLogs] = useState(null);
   const [filteredLogs1, setFilteredLogs1] = useState(null);
   const [filteredLogs2, setFilteredLogs2] = useState(null);
 
-  const [rules, setRules] = useState(initialRules);
-  const [comments, setComments] = useState(rules.map(() => ""));
-  const [selectedRule, setSelectedRule] = useState(rules[0].name);
+  const [rules, setRules] = useState([]);
 
   useEffect(() => {
     const fetchData = () => {
@@ -46,36 +42,6 @@ const App = () => {
 
     // return () => clearInterval(interval); // Clear interval on component unmount
   }, []);
-  const handleRuleChange = (index, event) => {
-    const newRule = event.target.value;
-    setSelectedRule(newRule);
-    // if (selectedRule === 'Rule 1') {
-    //   console.log('Rule 1')
-    //   const filteredLogs = logs.filter(log => log.tcp ? log.tcp.payload_size  > '1000' : '');
-    //   setFilteredLogs1(filteredLogs);
-    // } else if(selectedRule === 'Rule 2'){
-    //   const filteredLogs =logs.filter(log => log.tcp ? log.tcp.payload_size  === '0' : '');
-    //   setFilteredLogs2(filteredLogs);
-    // }
-  };
-
-  const handleCommentChange = (index, event) => {
-    const newComments = [...comments];
-    newComments[index] = event.target.value;
-    setComments(newComments);
-  };
-  const handleToggleStatus = (index) => {
-    const updatedRules = rules.map((rule, idx) => {
-      if (idx === index) {
-        return {
-          ...rule,
-          status: rule.status === "Active" ? "Inactive" : "Active",
-        };
-      }
-      return rule;
-    });
-    setRules(updatedRules);
-  };
 
   return (
     <AuthProvider>
@@ -94,12 +60,7 @@ Set the login route as the default route */}
           path="/rules"
           element={
             <PrivateRoute>
-              <RulesManagement
-                rules={rules}
-                comments={comments}
-                handleCommentChange={handleCommentChange}
-                handleToggleStatus={handleToggleStatus}
-              />
+              <RulesManagement rules={rules} setRules={setRules} />
             </PrivateRoute>
           }
         />
@@ -148,15 +109,7 @@ Set the login route as the default route */}
         />
         <Route
           path="/alerts"
-          element={
-            <AlertsManagement
-              filteredLogs1={filteredLogs1}
-              filteredLogs2={filteredLogs2}
-              rules={rules}
-              selectedRule={selectedRule}
-              handleRuleChange={handleRuleChange}
-            />
-          }
+          element={<AlertsManagement rules={rules} logs={logs} />}
         />
       </Routes>
     </AuthProvider>

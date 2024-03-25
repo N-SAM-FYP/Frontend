@@ -138,12 +138,17 @@ h1 {
   }
 }
 
-.modal-body {
-  display: flex;
-  gap: 2rem;
-  justify-content: center;
-  align-items: center;
+.remove-button {
+  padding: 10px;
+  border: none;
+  background: red;
+  color: white;
+  font-family: Lato;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 10px;
 }
+
 .input-wrapper {
   display: flex;
   flex-direction: column;
