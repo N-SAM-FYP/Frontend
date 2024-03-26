@@ -7,21 +7,29 @@ import { Column } from "primereact/column";
 
 function AlertsManagement({ rules, logs }) {
   console.log("logs", logs);
+  console.log("rules", rules);
   const navigate = useNavigate();
   const [filteredLogs, setFilteredLogs] = useState(null);
   useEffect(() => {
     if (logs) {
       const filteredLogs = rules.reduce((acc, rule) => {
-        const filtered = logs.filter((log) => {
-          const logFlags = log.flags.split(",").map((flag) => flag.trim());
-          return (
-            log.source === rule.sourceIP &&
-            log.destination === rule.destinationIP &&
-            rule.flags.every((flag) => logFlags.includes(flag))
-            // log.payload_size >= rule.payloadSize.greater &&
-            // log.payload_size <= rule.payloadSize.lesser
-          );
-        });
+        const filtered = logs
+          .filter((log) => {
+            const logFlags = log.flags.split(",").map((flag) => flag.trim());
+            return (
+              (rule.sourceIP ? log.source === rule.sourceIP : true) &&
+              (rule.destinationIP
+                ? log.destination === rule.destinationIP
+                : true) &&
+              (rule.flags.length > 0
+                ? rule.flags.every((flag) => logFlags.includes(flag))
+                : true)
+              // (rule.payloadSize.greater ? log.payload_size >= rule.payloadSize.greater : true) &&
+              // (rule.payloadSize.lesser ? log.payload_size <= rule.payloadSize.lesser : true)
+            );
+          })
+          .map((log) => ({ ...log, rule_name: rule.ruleName }));
+
         return [...acc, ...filtered];
       }, []);
 
@@ -52,6 +60,7 @@ function AlertsManagement({ rules, logs }) {
           paginator
           rows={15}
           showGridlines
+          stripedRows
           tableStyle={{ minWidth: "50rem", backgroundColor: "white" }}
           filterDisplay="row"
           emptyMessage="No logs found."
@@ -88,6 +97,7 @@ function AlertsManagement({ rules, logs }) {
           <Column field="payload_size" header="Payload Size" sortable></Column>
           <Column field="sequence" header="Sequence" sortable></Column>
           <Column field="source_port" header="Source Port" sortable></Column>
+          <Column field="rule_name" header="Rule"></Column>
         </DataTable>
       </div>
       <button className="go-back" onClick={handle_goback}>

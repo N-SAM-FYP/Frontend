@@ -116,6 +116,7 @@ function RulesManagement({ rules, setRules }) {
             }
           />
           <Column
+            header="Action"
             body={(rowData) => (
               <button
                 className="remove-button"

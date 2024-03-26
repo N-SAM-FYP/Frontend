@@ -23,24 +23,20 @@ const App = () => {
 
   const [rules, setRules] = useState([]);
 
+  const fetchLogs = () => {
+    fetch("http://localhost:3001/logs")
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        setLogs(refactorLogs(data));
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+  };
+
   useEffect(() => {
-    const fetchData = () => {
-      fetch("http://localhost:3001/logs")
-        .then((response) => response.json())
-        .then((data) => {
-          console.log(data);
-          setLogs(refactorLogs(data));
-        })
-        .catch((err) => {
-          console.log(err.message);
-        });
-    };
-    console.log("fetching data", logs);
-
-    fetchData(); // Initial fetch
-    // const interval = setInterval(fetchData, 1000); // Fetch every 5000 ms (5 seconds)
-
-    // return () => clearInterval(interval); // Clear interval on component unmount
+    fetchLogs(); // Initial fetch
   }, []);
 
   return (
@@ -78,7 +74,7 @@ Set the login route as the default route */}
           path="/logs"
           element={
             <PrivateRoute>
-              <Logs logs={logs} />
+              <Logs logs={logs} fetchLogs={fetchLogs} />
             </PrivateRoute>
           }
         />

@@ -8,8 +8,9 @@ import { Column } from "primereact/column";
 import { FilterMatchMode, FilterOperator } from "primereact/api";
 import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
+import { Button } from "primereact/button";
 
-function Logs({ logs }) {
+function Logs({ logs, fetchLogs }) {
   const navigate = useNavigate(); // Initialize useNavigate
 
   const handle_export = () => {
@@ -57,6 +58,7 @@ function Logs({ logs }) {
           </div>
         </div>
       </div>
+      <Button className="fetch-button" label="Fetch Logs" onClick={fetchLogs} />
 
       <DataTable
         value={logs}
