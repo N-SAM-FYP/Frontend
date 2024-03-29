@@ -18,16 +18,13 @@ import Logs from "../pages/Logs";
 
 const App = () => {
   const [logs, setLogs] = useState(null);
-  const [filteredLogs1, setFilteredLogs1] = useState(null);
-  const [filteredLogs2, setFilteredLogs2] = useState(null);
-
   const [rules, setRules] = useState([]);
+  const [toggle, setToggle] = useState(true);
 
   const fetchLogs = () => {
     fetch("http://localhost:3001/logs")
       .then((response) => response.json())
       .then((data) => {
-        console.log(data);
         setLogs(refactorLogs(data));
       })
       .catch((err) => {
@@ -36,8 +33,15 @@ const App = () => {
   };
 
   useEffect(() => {
-    fetchLogs(); // Initial fetch
-  }, []);
+    if (toggle) {
+      const interval = setInterval(() => {
+        fetchLogs();
+      }, 5000); // Fetch every 5 seconds
+
+      // Clear interval on component unmount
+      return () => clearInterval(interval);
+    }
+  }, [toggle]);
 
   return (
     <AuthProvider>
@@ -65,7 +69,7 @@ Set the login route as the default route */}
           path="/loganalysis"
           element={
             <PrivateRoute>
-              <LogAnalysis />
+              <LogAnalysis logs={logs} />
             </PrivateRoute>
           }
         />
@@ -74,7 +78,12 @@ Set the login route as the default route */}
           path="/logs"
           element={
             <PrivateRoute>
-              <Logs logs={logs} fetchLogs={fetchLogs} />
+              <Logs
+                logs={logs}
+                fetchLogs={fetchLogs}
+                toggle={toggle}
+                setToggle={setToggle}
+              />
             </PrivateRoute>
           }
         />

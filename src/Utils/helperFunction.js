@@ -1,5 +1,3 @@
-import moment from "moment";
-
 export const refactorLogs = (logs) => {
   return logs.map((log) => {
     return {

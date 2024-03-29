@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./Rules.css";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import Navbar from "../components/Navbar";
@@ -10,6 +10,7 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 
 const defaultRulesValue = {
+  id: "",
   ruleName: "",
   sourceIP: "",
   destinationIP: "",
@@ -22,25 +23,113 @@ const defaultRulesValue = {
 
 function RulesManagement({ rules, setRules }) {
   const OPTIONS = FLAGS.map((flag) => ({ value: flag, label: flag }));
+  console.log("rules", rules);
+  const [tableData, setTableData] = useState();
+  console.log("tableData", tableData);
 
   const [show, setShow] = useState(false);
+  const [showIpBlacklist, setShowIpBlacklist] = useState(false);
   const [ruleData, setRuleData] = useState(defaultRulesValue);
-  console.log(ruleData);
-  console.log("rules", rules);
+  const fetchBlockedIPs = () => {
+    fetch("http://localhost:3001/block-ip")
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Blocked IPS", data);
+
+        const tableDataTemp = data.map((item) => ({
+          id: item._id,
+          sourceIP: item.ip,
+          ruleName: "IP Blacklist",
+          destinationIP: "",
+          flags: [],
+          payloadSize: {
+            greater: null,
+            lesser: null,
+          },
+        }));
+
+        setTableData([...rules, ...tableDataTemp]);
+
+        console.log("Table Data", tableData);
+      })
+      .catch((err) => {
+        setTableData([]);
+        console.log(err.message);
+      });
+  };
+
+  useEffect(() => {
+    fetchBlockedIPs();
+  }, []);
 
   const handleClose = () => setShow(false);
+  const handleCloseIpBlacklist = () => setShowIpBlacklist(false);
   const handleSave = () => {
     setRules([...rules, ruleData]);
+    setTableData([...tableData, ruleData]);
     setRuleData(defaultRulesValue);
     setShow(false);
   };
+  const handleIpBlockSave = async () => {
+    try {
+      const data = await postIP(ruleData.sourceIP);
+      console.log(data); // Log the response data
+
+      await fetchBlockedIPs();
+      setRuleData(defaultRulesValue);
+      setShowIpBlacklist(false);
+    } catch (error) {
+      console.error("There was a problem with the fetch operation: ", error);
+    }
+  };
   const handleShow = () => setShow(true);
-  const handleRemove = (ruleToRemove) => {
+  const handleRemove = async (ruleToRemove) => {
+    if (ruleToRemove.ruleName === "IP Blacklist") {
+      await deleteRule(ruleToRemove.id);
+    }
     setRules(rules.filter((rule) => rule !== ruleToRemove));
+    setTableData(tableData.filter((rule) => rule !== ruleToRemove));
   };
   const navigate = useNavigate();
   const handle_goback = () => {
     navigate("/home");
+  };
+
+  const postIP = async (ip) => {
+    try {
+      const response = await fetch("http://localhost:3001/block-ip", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ip }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("There was a problem with the fetch operation: ", error);
+    }
+  };
+
+  const deleteRule = async (ruleId) => {
+    try {
+      const response = await fetch(`http://localhost:3001/block-ip/${ruleId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return response;
+    } catch (error) {
+      console.error("There was a problem with the fetch operation: ", error);
+    }
   };
 
   return (
@@ -55,31 +144,15 @@ function RulesManagement({ rules, setRules }) {
           <button className="add-button" onClick={handleShow}>
             Add
           </button>
+          <button
+            className="add-button"
+            onClick={() => setShowIpBlacklist(true)}
+          >
+            Ip Blacklist
+          </button>
         </div>
-        {/* <table className="table">
-          <thead>
-            <tr>
-              <th>Rule Name</th>
-              <th>Source IP</th>
-              <th>Destination IP</th>
-              <th>Flags</th>
-              <th>Payload Size</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rules.map((rule, index) => (
-              <tr key={index}>
-                <td>{rule.ruleName}</td>
-                <td>{rule.sourceIP}</td>
-                <td>{rule.destinationIP}</td>
-                <td>{rule.flags.join(", ")}</td>
-                <td>{`${rule.payloadSize.greater} > ${rule.payloadSize.lesser}`}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table> */}
         <DataTable
-          value={rules}
+          value={tableData}
           paginator
           rows={15}
           showGridlines
@@ -106,13 +179,22 @@ function RulesManagement({ rules, setRules }) {
             sortable
             style={{ minWidth: "12rem" }}
           ></Column>
-          <Column field="flags" header="Flags" sortable></Column>
+          <Column
+            field="flags"
+            header="Flags"
+            sortable
+            body={(rowData) => rowData.flags.join(", ")}
+          ></Column>
           <Column
             field="payloadSize"
             header="Payload Size"
             sortable
             body={(rowData) =>
-              `${rowData.payloadSize.lesser} >= Payload >=  ${rowData.payloadSize.greater}`
+              `${
+                rowData.payloadSize.lesser
+                  ? `${rowData.payloadSize.lesser} >= Payload >=  ${rowData.payloadSize.greater} `
+                  : ""
+              }`
             }
           />
           <Column
@@ -132,7 +214,7 @@ function RulesManagement({ rules, setRules }) {
         Go Back
       </button>
       <Modal show={show} onHide={handleClose}>
-        <Modal.Header closeButton>
+        <Modal.Header>
           <Modal.Title>Add Rule</Modal.Title>
         </Modal.Header>
         <Modal.Body className="d-flex flex-column">
@@ -198,7 +280,7 @@ function RulesManagement({ rules, setRules }) {
                         ...ruleData,
                         payloadSize: {
                           ...ruleData.payloadSize,
-                          greater: e.target.value,
+                          greater: Number(e.target.value),
                         },
                       })
                     }
@@ -214,7 +296,7 @@ function RulesManagement({ rules, setRules }) {
                         ...ruleData,
                         payloadSize: {
                           ...ruleData.payloadSize,
-                          lesser: e.target.value,
+                          lesser: Number(e.target.value),
                         },
                       })
                     }
@@ -229,6 +311,42 @@ function RulesManagement({ rules, setRules }) {
             Close
           </Button>
           <Button variant="primary" onClick={handleSave}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <Modal show={showIpBlacklist} onHide={handleCloseIpBlacklist}>
+        <Modal.Header>
+          <Modal.Title>IP Blacklist</Modal.Title>
+        </Modal.Header>
+        <Modal.Body className="d-flex flex-column">
+          <div>
+            <div>
+              <div className="input-wrapper">
+                <label>IP</label>
+                <input
+                  type="text"
+                  onChange={(e) => {
+                    setRuleData({
+                      ...ruleData,
+                      sourceIP: e.target.value,
+                      ruleName: "IP Blacklist",
+                      payloadSize: {
+                        lesser: null,
+                        greater: null,
+                      },
+                    });
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseIpBlacklist}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleIpBlockSave}>
             Save Changes
           </Button>
         </Modal.Footer>

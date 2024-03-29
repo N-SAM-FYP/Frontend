@@ -115,6 +115,7 @@ h1 {
 .rules-management {
   position: relative;
   .add-button {
+    margin: 10px;
     padding: 10px 20px;
     border: none;
     background: #070707;
@@ -122,7 +123,7 @@ h1 {
     font-family: Lato;
     font-weight: 500;
     cursor: pointer;
-    border-radius: 20px;
+    border-radius: 10px;
   }
   .table-section {
     display: flex;

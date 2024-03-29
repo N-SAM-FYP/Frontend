@@ -1,59 +1,69 @@
 /* Reset and basic styles */
-body, h1, h2, h3, button, input {
-    margin: 0;
-    padding: 0;
-    font-family: 'Arial', sans-serif;
-  }
-  
-  /* Main app background */
-  .App {
-    background-color: #f4f4f4; /* Adjust the background color to match the design */
-    background-image: url(../pics/logo.png.png);
-    background-position: center;
-    background-size: cover;
-    background-repeat: no-repeat;
-    min-height: 100vh;
-    padding: 20px;
-  }
+nav {
+  padding-top: 0 !important;
+}
+body,
+h1,
+h2,
+h3,
+button,
+input {
+  margin: 0;
+  padding: 0;
+  font-family: "Arial", sans-serif;
+}
 
-  /* Navbar styling */
-  header {
-    /* Assuming your Navbar is within a <header> tag */
-    background-color: #ffffff; /* Adjust to match design */
-    padding: 10px 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  
-  /* Main Title */
-  .main-title h1 {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: #333;
-    text-align: center;
-    margin-top: 20px; /* Spacing from the Navbar */
-  }
-  
-  .main-title h2 {
-    font-size: 1.5rem;
-    color: #555;
-    text-align: center;
-    margin: 20px 0 40px 0; /* More spacing around the Welcome message */
-  }
-  
- /* Card container */
+/* Main app background */
+.App {
+  background-color: #f4f4f4; /* Adjust the background color to match the design */
+  background-image: url(../pics/logo.png.png);
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* Navbar styling */
+header {
+  /* Assuming your Navbar is within a <header> tag */
+  background-color: #ffffff; /* Adjust to match design */
+  padding: 10px 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Main Title */
+.main-title h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+  margin-top: 20px; /* Spacing from the Navbar */
+}
+
+.main-title h2 {
+  font-size: 1.5rem;
+  color: #555;
+  text-align: center;
+  margin: 20px 0 40px 0; /* More spacing around the Welcome message */
+}
+
+/* Card container */
 .card-container {
   margin-top: -60px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Reduced min size for smaller cards */
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(150px, 1fr)
+  ); /* Reduced min size for smaller cards */
   justify-content: center;
   align-items: center;
   padding-bottom: 20px;
-
 }
 
 /* Card styling */
@@ -74,79 +84,79 @@ body, h1, h2, h3, button, input {
   transition: transform 0.3s, box-shadow 0.3s;
 }
 
-  .card img {
-    max-width: 80%; /* Image width */
-    height: auto; /* Image height */
-    max-block-size: 150px;
-    margin-bottom: 10px;
-    align-items: center;
+.card img {
+  max-width: 80%; /* Image width */
+  height: auto; /* Image height */
+  max-block-size: 150px;
+  margin-bottom: 10px;
+  align-items: center;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+.profile-section .user-icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: inline-flex; /* Center the image inside the button */
+  align-items: center;
+  justify-content: center;
+}
+
+/* Maintain the existing .user-icon styles and add a hover effect */
+.profile-section .user-icon-btn:hover .user-icon,
+.profile-section .user-icon-btn:focus .user-icon {
+  outline: none;
+  box-shadow: 0 0 8px rgba(0, 0, 255, 0.5); /* Blue glow effect */
+  border-radius: 50%; /* Make sure it's circular */
+}
+
+/* Existing styles for .user-icon */
+.user-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-left: 20px;
+  display: block; /* Adjust as needed */
+  /* Remove border if it was previously set */
+}
+
+.card h4 {
+  font-size: 1em;
+  color: #333; /* Text color */
+  margin-top: 15px; /* Spacing from image to text */
+}
+
+/* LOG OUT button styling */
+.logout-button {
+  background-color: #070707; /* Button color */
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px; /* Rounded corners */
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+  text-transform: uppercase; /* Capital letters */
+  margin: 20px auto; /* Center button horizontally */
+  display: block; /* Block level for auto margins to work */
+  width: fit-content; /* Adjust width to content */
+}
+.logout-button:hover {
+  background-color: #e0eae1;
+  color: #070707;
+}
+
+/* Responsive adjustments */
+@media (max-width: 568px) {
+  .card-container {
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(150px, 1fr)
+    ); /* Adjust for smaller screens */
   }
-  
-  .card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
-  }
-  .profile-section .user-icon-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    display: inline-flex; /* Center the image inside the button */
-    align-items: center;
-    justify-content: center;
-  }
-  
-  /* Maintain the existing .user-icon styles and add a hover effect */
-  .profile-section .user-icon-btn:hover .user-icon,
-  .profile-section .user-icon-btn:focus .user-icon {
-    outline: none;
-    box-shadow: 0 0 8px rgba(0, 0, 255, 0.5); /* Blue glow effect */
-    border-radius: 50%; /* Make sure it's circular */
-  }
-  
-  /* Existing styles for .user-icon */
-  .user-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    margin-left: 20px;
-    display: block; /* Adjust as needed */
-    /* Remove border if it was previously set */
-  }
-  
-  
-  .card h4 {
-    font-size: 1em;
-    color: #333; /* Text color */
-    margin-top: 15px; /* Spacing from image to text */
-  }
-  
-  /* LOG OUT button styling */
-  .logout-button {
-    background-color: #070707; /* Button color */
-    color: white;
-    padding: 10px 20px;
-    border-radius: 8px; /* Rounded corners */
-    border: none;
-    cursor: pointer;
-    font-weight: bold;
-    text-transform: uppercase; /* Capital letters */
-    margin: 20px auto; /* Center button horizontally */
-    display: block; /* Block level for auto margins to work */
-    width: fit-content; /* Adjust width to content */
-  }
-  .logout-button:hover
-  {
-    background-color: #e0eae1;
-    color:#070707;
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 568px) {
-    .card-container {
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Adjust for smaller screens */
-    }
-  }
-  
-  /* Add any additional styles you may need below */
-  
+}
+
+/* Add any additional styles you may need below */

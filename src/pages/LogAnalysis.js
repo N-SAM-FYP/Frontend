@@ -2,24 +2,21 @@
 import Navbar from "../components/Navbar";
 import "./LogAnalysis.css";
 import "../assets/css/filter.css";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 //import img from '../pics/jugaar.png'
 import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
-import { DataTable } from "primereact/datatable";
-import { Column } from "primereact/column";
 import { Button } from "primereact/button";
-import { refactorLogs } from "../Utils/helperFunction";
 import crossIcon from "../assets/svg/cross.svg";
-import Spinner from "../components/smallComponents/Spinner";
 import plusIcon from "../assets/svg/plus.svg";
 import ChartsSection from "../components/ChartsSection";
+import PacketTable from "../components/PacketTable";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
-function LogAnalysis() {
-  const [logs, setLogs] = useState(null);
-  const [filteredLogs, setFilteredLogs] = useState(null);
-  const [isLoading, setIsloading] = useState(false);
+function LogAnalysis({ logs }) {
+  const [filteredLogs, setFilteredLogs] = useState(logs);
   const [filters, setFilters] = useState([]);
 
   const [selectedTimeStamps, setSelectedTimeStamps] = useState({
@@ -32,32 +29,17 @@ function LogAnalysis() {
   const [singleIp, setSingleIp] = useState("");
   const [flags, setFlags] = useState("");
 
-  useEffect(() => {
-    const fetchData = () => {
-      fetch("http://localhost:3001/logs")
-        .then((response) => response.json())
-        .then((data) => {
-          console.log(data);
-          setIsloading(false);
-          setLogs(refactorLogs(data));
-          setFilteredLogs(refactorLogs(data));
-        })
-        .catch((err) => {
-          console.log(err.message);
-        });
-    };
-
-    fetchData(); // Initial fetch
-  }, []);
-
   const navigate = useNavigate(); // Initialize useNavigate
   const handle_export = () => {
-    navigate("/report");
+    html2canvas(document.body).then((canvas) => {
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF();
+      pdf.addImage(imgData, "PNG", 0, 0);
+      pdf.save("download.pdf");
+    });
   };
 
   const handleFilterSet = (field) => {
-    console.log("field", field.value);
-
     setFilters((prevState) => {
       let newFilters = [];
       if (prevState.length > 0) {
@@ -67,7 +49,6 @@ function LogAnalysis() {
       if (!newFilters.includes(field.value)) {
         newFilters.push(field.value);
       }
-      console.log("filter", newFilters);
       return newFilters;
     });
   };
@@ -89,9 +70,7 @@ function LogAnalysis() {
 
   const handleFilterSubmit = () => {
     let resultLogs = logs;
-    console.log("resultLogs", resultLogs);
     if (filters) {
-      console.log("selectedTimeStamps", selectedTimeStamps);
       if (filters.includes("Timestamp")) {
         resultLogs = resultLogs.filter(
           (log) =>
@@ -115,7 +94,6 @@ function LogAnalysis() {
         });
       }
     }
-    console.log("resultLogs", resultLogs);
     setFilteredLogs(resultLogs);
   };
 
@@ -327,79 +305,7 @@ function LogAnalysis() {
             </>
           )}
         </div>
-        {isLoading ? (
-          <Spinner />
-        ) : (
-          <DataTable
-            value={filteredLogs}
-            paginator
-            rows={15}
-            showGridlines
-            tableStyle={{ minWidth: "50rem", backgroundColor: "white" }}
-            // filters={filters}
-            filterDisplay="row"
-            // globalFilterFields={["type", "destination", "payload_size", "source"]}
-            emptyMessage="No logs found."
-          >
-            <Column
-              field="timestamp"
-              header="Time Stamp"
-              showFilterMenu={false}
-              // filterMenuStyle={{ width: "14rem" }}
-              // filter
-              // filterPlaceholder="IP Address"
-              sortable
-              style={{ minWidth: "12rem" }}
-            ></Column>
-            <Column
-              field="type"
-              header="Type"
-              // showFilterMenu={false}
-              // filterMenuStyle={{ width: "14rem" }}
-              // filter
-              // filterElement={typeRowFilterTemplate}
-              sortable
-            ></Column>
-            <Column
-              field="destination"
-              header="Destination"
-              // showFilterMenu={false}
-              // filterMenuStyle={{ width: "14rem" }}
-              // filter
-              // filterPlaceholder="IP Address"
-              sortable
-              style={{ minWidth: "12rem" }}
-            ></Column>
-            <Column field="protocol" header="Protocol" sortable></Column>
-            <Column
-              field="source"
-              header="Source"
-              // howFilterMenu={false}
-              // filterMenuStyle={{ width: "14rem" }}
-              // filter
-              // filterPlaceholder="IP Address"
-              sortable
-              style={{ minWidth: "12rem" }}
-            ></Column>
-            <Column field="ttl" header="Time to live" sortable></Column>
-            <Column field="acknowledge" header="Acknowledge" sortable></Column>
-            <Column
-              field="destination_port"
-              header="Destination Port"
-              sortable
-            ></Column>
-            <Column field="flags" header="Flags" sortable></Column>
-            <Column
-              field="payload_size"
-              header="Payload Size"
-              // filter
-              // filterMenuStyle={{ width: "3rem" }}
-              sortable
-            ></Column>
-            <Column field="sequence" header="Sequence" sortable></Column>
-            <Column field="source_port" header="Source Port" sortable></Column>
-          </DataTable>
-        )}
+        <PacketTable logs={filteredLogs} />
       </div>
       <button className="export-button" onClick={handle_export}>
         Export

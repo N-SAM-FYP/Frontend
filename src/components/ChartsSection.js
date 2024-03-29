@@ -23,7 +23,9 @@ const ChartsSection = ({ logs }) => {
     if (!filteredLogs) return [];
     const counts = filteredLogs.reduce((acc, log) => {
       const ip = ipType === "Destination" ? log.destination : log.source;
-      acc[ip] = (acc[ip] || 0) + 1;
+      if (ip !== "N/A") {
+        acc[ip] = (acc[ip] || 0) + 1;
+      }
       return acc;
     }, {});
 
@@ -32,8 +34,6 @@ const ChartsSection = ({ logs }) => {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
       .map(([ip, count]) => ({ y: count, label: ip }));
-
-    console.log("topIPs", topIPs);
 
     return topIPs;
   };

@@ -92,7 +92,8 @@
   margin: 0 auto; /* centers the image if it's not full width */
 }
 
-.fetch-button {
+/* .fetch-button {
+  margin-left: 20px;
   padding: 10px 20px;
   border: none;
   background: #070707;
@@ -102,4 +103,30 @@
   cursor: pointer;
   border-radius: 20px;
 }
+
+.fetch-button:hover {
+  opacity: 0.8;
+} */
 /* Add more styles as needed */
+
+.fetch-button .p-inputswitch-slider {
+  background-color: blue;
+  border-color: blue;
+  width: 40px;
+  height: 20px;
+}
+
+.fetch-button .p-inputswitch-handle {
+  width: 20px;
+  height: 20px;
+}
+
+.toggle {
+  margin-left: 20px;
+  color: black;
+  padding: 5px;
+  border-radius: 5px;
+  width: 27px;
+  height: 27px;
+  border: 2px solid black;
+}

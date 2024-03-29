@@ -7,6 +7,7 @@ const PacketTable = ({ logs }) => {
   const [selectedTimestamp, setSelectedTimestamp] = useState("24h");
   const [selectedProtocol, setSelectedProtocol] = useState("All");
   const [filteredLogs, setFilteredLogs] = useState([]);
+  console.log("PacketTable -> logs", logs);
 
   const endOfTableRef = useRef(null);
 
@@ -26,42 +27,13 @@ const PacketTable = ({ logs }) => {
     }
   }, [logs, selectedProtocol]);
 
-  const handleTimestampChange = (event) => {
-    setSelectedTimestamp(event.target.value);
-  };
-
-  const handleProtocolChange = (event) => {
-    setSelectedProtocol(event.target.value);
-  };
-
   return (
     <div className="table-container">
       <table>
         <thead>
           <tr>
-            <th>
-              Time Stamp:
-              <select
-                className="select-option"
-                value={selectedTimestamp}
-                onChange={handleTimestampChange}
-              >
-                <option value="24h">24 hours</option>
-                <option value="1h">1 hour</option>
-              </select>
-            </th>
-            <th>
-              Type
-              <select
-                className="select-option"
-                value={selectedProtocol}
-                onChange={handleProtocolChange}
-              >
-                <option value="All">All</option>
-                <option value="TCP">TCP</option>
-                <option value="UDP">UDP</option>
-              </select>
-            </th>
+            <th>Time Stamp:</th>
+            <th>Type</th>
             <th>Destination</th>
             <th>Protocol</th>
             <th>Source</th>
@@ -82,18 +54,18 @@ const PacketTable = ({ logs }) => {
                 ref={index === filteredLogs.length - 1 ? endOfTableRef : null}
               >
                 <td>{moment(log.timestamp).format("lll")}</td>
-                {log.tcp && <td>TCP</td>}
-                {log.udp && <td>UDP</td>}
-                <td>{log.ip ? log.ip.dst : "N/A"}</td>
-                <td>{log.ip ? log.ip.protocol : "N/A"}</td>
-                <td>{log.ip ? log.ip.src : "N/A"}</td>
-                <td>{log.ip ? log.ip.ttl : "N/A"}</td>
-                <td>{log.tcp ? log.tcp.ack : "N/A"}</td>
-                <td>{log.tcp ? log.tcp.dest_port : "N/A"}</td>
-                <td>{log.tcp ? log.tcp.flags : "N/A"}</td>
-                <td>{log.tcp ? log.tcp.payload_size : "N/A"}</td>
-                <td>{log.tcp ? log.tcp.seq : "N/A"}</td>
-                <td>{log.tcp ? log.tcp.source_port : "N/A"}</td>
+                <td>{log.type}</td>
+                <td>{log.destination}</td>
+                <td>{log.protocol}</td>
+                <td>{log.source}</td>
+                <td>{log.ttl}</td>
+                <td>{log.acknowledge}</td>
+                <td>{log.destination_port}</td>
+                <td>{log.flags}</td>
+                <td>{log.payload_size}</td>
+                <td>{log.sequence}</td>
+                <td>{log.source_port}</td>
+                {log.rule_name && <td>{log.rule_name}</td>}
               </tr>
             ))}
         </tbody>
